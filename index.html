@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>我的工作台 · 随身版</title>
+<meta name="theme-color" content="#faf4ec">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+/* ===== 我的工作台 · 温柔治愈风（与电脑版同一套视觉） ===== */
+:root {
+  --bg: #faf4ec; --card: #fffdf9; --ink: #4a4238; --ink-soft: #8a7f72;
+  --line: #f0e5d8; --rose: #d98e82; --rose-deep: #c9766a; --peach: #eeb59c;
+  --sage: #9db7a5; --blue: #a9bdd6; --gold: #d9b98a;
+  --shadow: 0 12px 30px rgba(180, 140, 110, 0.12);
+  --radius: 20px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: radial-gradient(1000px 500px at 100% -10%, rgba(238,181,156,.25), transparent 60%),
+              radial-gradient(800px 400px at -10% 0%, rgba(157,183,165,.18), transparent 55%), var(--bg);
+  color: var(--ink); line-height: 1.7; min-height: 100vh; padding-bottom: 96px;
+}
+/* 顶部 */
+.hero { padding: 40px 20px 20px; text-align: center; background: linear-gradient(180deg, rgba(255,255,255,.6), transparent); }
+.hero .date { font-size: 14px; letter-spacing: 2px; color: var(--ink-soft); margin-bottom: 8px; }
+.hero h1 { font-size: 32px; font-weight: 700; letter-spacing: 4px;
+  background: linear-gradient(120deg, var(--rose), var(--gold) 70%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero .greeting { color: var(--ink-soft); margin-top: 6px; font-size: 15px; }
+.banner { text-align: center; font-size: 13px; padding: 10px 16px; background: #f7e8d8; color: #8a6a45; }
+main { max-width: 1080px; margin: 0 auto; padding: 0 16px 20px; }
+/* 今日卡片 */
+.today { background: linear-gradient(135deg, #fffdf8, #fff5ec); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 16px; margin-bottom: 24px; }
+.today-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.kicker { font-size: 12px; letter-spacing: 2px; color: #fff; background: var(--rose); padding: 3px 10px; border-radius: 999px; }
+.today-head h2 { font-size: 18px; }
+.live-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--sage); }
+.today-list { list-style: none; display: grid; gap: 10px; margin-bottom: 12px; }
+.task-row { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px;
+  display: flex; align-items: center; gap: 12px; }
+.task-row .chk { width: 28px; height: 28px; flex: none; border-radius: 9px; border: 2px solid var(--sage);
+  background: #fff; color: #fff; font-size: 16px; line-height: 1; display: inline-flex;
+  align-items: center; justify-content: center; padding: 0; }
+.task-row.done .chk { background: var(--sage); border-color: var(--sage); }
+.task-row.done .chk::after { content: "✓"; }
+.task-row .tt { flex: 1; font-size: 16px; word-break: break-word; min-width: 0; }
+.task-row.done .tt { text-decoration: line-through; color: var(--ink-soft); }
+.task-row .row-acts { display: flex; gap: 4px; flex: none; }
+.iact { width: 34px; height: 34px; border: none; background: transparent; border-radius: 9px;
+  font-size: 16px; color: var(--ink-soft); }
+.iact.del:active { background: #fbe9e5; color: #b25749; }
+.task-row .edit-inp, .task-add input, textarea, select {
+  font-size: 16px; font-family: inherit; color: var(--ink); border: 1.5px solid var(--line);
+  border-radius: 12px; padding: 10px 12px; background: #fff; outline: none; width: 100%; }
+.task-row .edit-inp { flex: 1; padding: 6px 10px; border-color: var(--rose); min-width: 0; }
+.task-add { display: flex; gap: 10px; }
+.task-add input:focus, textarea:focus, select:focus { border-color: var(--peach); }
+.today-tip { margin-top: 10px; font-size: 13px; color: var(--ink-soft); }
+.empty-hint, .today-hint { color: var(--ink-soft); font-size: 14px; text-align: center; padding: 16px 10px; }
+/* 按钮 */
+.btn { border: none; font-family: inherit; font-size: 16px; border-radius: 12px; padding: 11px 18px; min-height: 44px;
+  background: var(--rose); color: #fff; }
+.btn:active { background: var(--rose-deep); }
+.btn-soft { background: #f2e8dc; color: var(--ink-soft); }
+.btn-block { width: 100%; margin-top: 6px; }
+/* 区域网格 */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 18px 18px 14px; display: flex; flex-direction: column; }
+.card .emoji { font-size: 28px; }
+.card h2 { font-size: 18px; margin: 5px 0 3px; }
+.card .desc { font-size: 13px; color: var(--ink-soft); margin-bottom: 10px; }
+.card .folder { font-size: 11px; color: var(--ink-soft); background: #f6efe6; border-radius: 6px;
+  padding: 2px 8px; display: inline-block; margin-bottom: 8px; font-family: Consolas, monospace; }
+.card ul { list-style: none; margin-top: auto; }
+.card li { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 15px; }
+.card li .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dot, var(--sage)); flex: none; }
+.card a, .card .lnk { color: var(--ink); text-decoration: none; word-break: break-all; }
+.card .lnk { background: none; border: none; padding: 0; font: inherit; text-align: left; }
+.card .todo-tag { color: var(--ink-soft); }
+.card .todo-tag::after { content: "（待补充）"; font-size: 12px; }
+.card[data-accent="rose"] { --dot: var(--rose); } .card[data-accent="peach"] { --dot: var(--peach); }
+.card[data-accent="sage"] { --dot: var(--sage); } .card[data-accent="blue"] { --dot: var(--blue); }
+.card[data-accent="gold"] { --dot: var(--gold); }
+/* 登记表卡片 */
+.index-card { display: flex; gap: 16px; align-items: flex-start; background: #fdf6ec;
+  border: 1px dashed var(--gold); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px; }
+.index-card .index-emoji { font-size: 28px; }
+.index-card h2 { font-size: 16px; margin-bottom: 4px; }
+.index-card p { font-size: 14px; color: var(--ink-soft); }
+.index-card code { font-family: Consolas, monospace; background: #fff; border: 1px solid var(--line);
+  padding: 1px 6px; border-radius: 5px; font-size: 13px; }
+.links-mini { list-style: none; margin-top: 10px; display: grid; gap: 6px; }
+.links-mini li { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px;
+  display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.links-mini .x { margin-left: auto; }
+.links-mini a { color: var(--ink); text-decoration: none; word-break: break-all; }
+.x { border: none; background: transparent; color: var(--ink-soft); font-size: 18px; padding: 2px 8px; border-radius: 8px; }
+footer { text-align: center; padding: 18px; color: var(--ink-soft); font-size: 13px; }
+.build-tag { margin-top: 4px; font-size: 11px; opacity: .65; font-family: Consolas, monospace; }
+/* ＋ 悬浮按钮 */
+.fab { position: fixed; right: 20px; bottom: 24px; width: 58px; height: 58px; border-radius: 50%; border: none;
+  background: linear-gradient(135deg, var(--rose), var(--rose-deep)); color: #fff; font-size: 30px; line-height: 1;
+  box-shadow: 0 10px 24px rgba(201,118,106,.45); z-index: 40; display: flex; align-items: center; justify-content: center; }
+/* 弹出面板 */
+.sheet-backdrop { position: fixed; inset: 0; background: rgba(60,45,35,.35); z-index: 50; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #fffdf9; border-radius: 24px 24px 0 0;
+  box-shadow: 0 -8px 30px rgba(180,140,110,.25); z-index: 51; padding: 10px 20px calc(20px + env(safe-area-inset-bottom));
+  max-height: 86vh; overflow-y: auto; }
+.sheet-grip { width: 44px; height: 5px; border-radius: 3px; background: #ead9c8; margin: 4px auto 10px; }
+.sheet-tabs { display: flex; gap: 8px; margin-bottom: 8px; }
+.stab { flex: 1; border: 1px solid var(--line); background: #fff; border-radius: 12px; padding: 10px;
+  font-size: 15px; font-family: inherit; color: var(--ink-soft); }
+.stab.active { border-color: var(--rose); color: var(--rose-deep); background: #fdf3ef; font-weight: 600; }
+.stab-pane { display: grid; gap: 4px; padding-bottom: 6px; }
+.stab-pane label { font-size: 13px; color: var(--ink-soft); margin-top: 6px; }
+.stab-pane textarea { min-height: 84px; resize: vertical; }
+.form-msg { font-size: 14px; min-height: 20px; color: var(--ink-soft); }
+.form-msg.ok { color: var(--sage); } .form-msg.err { color: #b25749; }
+/* 笔记弹窗 */
+.overlay { position: fixed; inset: 0; background: rgba(60,45,35,.5); z-index: 60; display: flex;
+  align-items: center; justify-content: center; padding: 20px; }
+.note-card { background: #fffdf9; border-radius: 22px; box-shadow: 0 20px 50px rgba(0,0,0,.25);
+  padding: 20px; width: 100%; max-width: 560px; max-height: 86vh; display: flex; flex-direction: column; gap: 10px; }
+.note-card h2 { font-size: 17px; }
+.note-card .path { font-size: 11px; color: var(--ink-soft); font-family: Consolas, monospace; }
+.note-card textarea { flex: 1; min-height: 220px; resize: vertical; }
+.note-acts { display: flex; gap: 8px; }
+.note-acts .btn { flex: 1; }
+@media (min-width: 700px) { .hero h1 { font-size: 48px; } }
+</style>
+</head>
+<body>
+
+<div class="banner" id="banner" hidden></div>
+
+<header class="hero">
+  <p class="date" id="date">——</p>
+  <h1>我的工作台</h1>
+  <p class="greeting" id="greeting"></p>
+</header>
+
+<main>
+  <!-- 今日引擎 -->
+  <section class="today">
+    <div class="today-head">
+      <span class="kicker">今日引擎</span>
+      <h2>今天最重要的 3 件事</h2>
+      <span class="live-dot" id="liveDot" title="本地存储正常"></span>
+    </div>
+    <ul class="today-list" id="todayList"></ul>
+    <form class="task-add" id="taskAddForm">
+      <input id="taskInput" type="text" maxlength="80" placeholder="➕ 添加一件今天要做的事…" autocomplete="off">
+      <button type="submit" class="btn" id="taskAddBtn">添加</button>
+    </form>
+    <p class="today-tip" id="todayTip">随身版：数据存在这台设备里，电脑不开也能用。睡前写 3 件，白天做一件勾一件。</p>
+  </section>
+
+  <!-- 各区域 -->
+  <section class="grid" id="areas"></section>
+
+  <!-- 登记表 -->
+  <section class="index-card">
+    <div class="index-emoji">🗂</div>
+    <div style="flex:1">
+      <h2>本地登记表：链接收藏</h2>
+      <p>网页上只放最常用的快捷入口；右下角 <b>＋</b> 可以随手记 / 登记链接 / 备份导出。</p>
+      <ul class="links-mini" id="linkList"></ul>
+    </div>
+  </section>
+
+  <footer>
+    <p>每天 3 分钟写「今日」· 每周 15 分钟做「周复盘」</p>
+    <p class="build-tag" id="buildTag"></p>
+  </footer>
+</main>
+
+<button class="fab" id="fab" aria-label="快速添加">＋</button>
+
+<div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+<section class="sheet" id="sheet" hidden>
+  <div class="sheet-grip"></div>
+  <div class="sheet-tabs">
+    <button class="stab active" data-tab="note">✍️ 随手记</button>
+    <button class="stab" data-tab="link">🔗 登记链接</button>
+    <button class="stab" data-tab="backup">📤 备份</button>
+  </div>
+
+  <div class="stab-pane" id="pane-note">
+    <label>记到哪</label>
+    <select id="noteTarget"></select>
+    <label>写点什么</label>
+    <textarea id="noteText" placeholder="今天想记下的…（会自动带上日期时间）"></textarea>
+    <button class="btn btn-block" id="noteBtn">追加</button>
+    <p class="form-msg" id="noteMsg"></p>
+  </div>
+
+  <div class="stab-pane" id="pane-link" hidden>
+    <label>分类</label>
+    <select id="linkSection"></select>
+    <label>名称</label>
+    <input id="linkName" type="text" maxlength="60" placeholder="例如：B 站">
+    <label>网址</label>
+    <input id="linkUrl" type="text" inputmode="url" placeholder="https://…">
+    <button class="btn btn-block" id="linkBtn">登记</button>
+    <p class="form-msg" id="linkMsg"></p>
+  </div>
+
+  <div class="stab-pane" id="pane-backup" hidden>
+    <p class="form-msg">数据只在这台设备的浏览器里。定期导出一份 .md 存到手机，就是你的备份。</p>
+    <button class="btn btn-block" id="exportBtn">导出成 .md 文件</button>
+    <button class="btn btn-soft btn-block" id="importBtn">从 .md 导入（合并）</button>
+    <input type="file" id="importFile" accept=".md,.txt,text/plain" hidden>
+    <p class="form-msg" id="backupMsg"></p>
+  </div>
+</section>
+
+<div class="overlay" id="noteModal" hidden>
+  <div class="note-card">
+    <h2 id="noteTitle">本地笔记</h2>
+    <p class="path" id="notePath"></p>
+    <textarea id="noteBody" placeholder="在这里写这个区域的笔记…"></textarea>
+    <div class="note-acts">
+      <button class="btn" id="noteSave">保存</button>
+      <button class="btn btn-soft" id="noteClose">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var BUILD = "随身版 2.0 · 2026-09-19";
+  var KEY = "workbench_mobile_v1";
+
+  /* ============ 与电脑版一致的 8 个区域 ============ */
+  // u = 外链地址；f = 本地笔记（替代电脑上的 .md 文件）；# = 待补充
+  var AREAS = [
+    { emoji: "📚", name: "专业学习", accent: "blue", desc: "每门课一个子文件夹：课堂笔记 / 作业 / 错题", folder: "10_专业学习",
+      links: [{ t: "课程表 & DDL", u: "#" }, { t: "常用学习网站", u: "#" }] },
+    { emoji: "🤖", name: "AI 学习", accent: "sage", desc: "提示词库 / 实验记录 / 踩坑心得", folder: "20_AI学习",
+      links: [{ t: "提示词收集清单", f: "20_AI学习/提示词收集.md" }, { t: "常用 AI 工具", u: "#" }] },
+    { emoji: "🎨", name: "PPT 与表达", accent: "rose", desc: "模板 / 成品 / 复盘（关联 Claude 的 ppt 技能）", folder: "30_PPT与表达",
+      links: [{ t: "Claude ppt 技能", u: "https://claude.com/claude-code" }, { t: "模板库目录", u: "#" }] },
+    { emoji: "🏫", name: "校园事务", accent: "gold", desc: "课表 / 选课 / 竞赛社团 / 证件材料", folder: "40_校园事务",
+      links: [{ t: "教务系统", u: "#" }, { t: "DDL 清单", f: "40_校园事务/DDL清单.md" }] },
+    { emoji: "🌿", name: "生活", accent: "sage", desc: "健康作息 / 记账 / 心情日记", folder: "50_生活",
+      links: [{ t: "心情日记", f: "50_生活/心情日记.md" }, { t: "记账表", f: "50_生活/记账.md" }] },
+    { emoji: "🎮", name: "娱乐", accent: "peach", desc: "乙游进度 / 番剧 / 书单 / 音乐", folder: "60_娱乐",
+      links: [{ t: "B 站", u: "https://www.bilibili.com" }, { t: "随手记", f: "60_娱乐/随手记.md" }] },
+    { emoji: "🖼", name: "作品集", accent: "rose", desc: "对外产出 → 定期同步到简历网站", folder: "70_作品集",
+      links: [{ t: "简历网站(静态版)", u: "#" }, { t: "简历网站 v2(React)", u: "#" }] },
+    { emoji: "🗂", name: "素材库", accent: "gold", desc: "PPT 模板 / 字体 / 配图 / AI 提示词素材", folder: "_素材库",
+      links: [{ t: "素材清单", f: "_素材库/README.md" }, { t: "找素材网站", u: "#" }] }
+  ];
+
+  var NOTE_TARGETS = [
+    { id: "mood", label: "心情日记", path: "50_生活/心情日记.md" },
+    { id: "fun", label: "娱乐随手记", path: "60_娱乐/随手记.md" },
+    { id: "prompt", label: "AI 提示词收集", path: "20_AI学习/提示词收集.md" }
+  ];
+  var LINK_SECTIONS = ["📚 专业学习","🤖 AI 学习","🎨 PPT 与表达","🏫 校园事务","🌿 生活","🎮 娱乐","🖼 作品集","🗂 素材来源"];
+
+  /* ============ 存储 ============ */
+  var state = { tasks: [], notes: [], links: [], files: {} };
+  var storageOK = true;
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var d = JSON.parse(raw) || {};
+        state.tasks = d.tasks || []; state.notes = d.notes || [];
+        state.links = d.links || []; state.files = d.files || {};
+      }
+    } catch (e) {
+      storageOK = false;
+      var b = document.getElementById("banner");
+      b.hidden = false;
+      b.textContent = "⚠ 这个浏览器不允许本地保存，数据只在本页有效 —— 请用「＋ → 备份」导出保存。";
+      document.getElementById("liveDot").style.background = "#d98e82";
+    }
+  }
+  function save() {
+    if (!storageOK) return;
+    try { localStorage.setItem(KEY, JSON.stringify(state)); }
+    catch (e) { storageOK = false; }
+  }
+  function $(id) { return document.getElementById(id); }
+  function stamp() {
+    var d = new Date(), p = function (n) { return (n < 10 ? "0" : "") + n; };
+    return d.getFullYear() + "-" + p(d.getMonth()+1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+  }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+  /* ============ 渲染：顶部 ============ */
+  var WEEK = ["日","一","二","三","四","五","六"];
+  function renderClock() {
+    var now = new Date(), h = now.getHours(), g;
+    $("date").textContent = now.getFullYear() + " 年 " + (now.getMonth()+1) + " 月 " + now.getDate() + " 日 · 星期" + WEEK[now.getDay()];
+    if (h < 6) g = "夜深了，早点休息 🌙";
+    else if (h < 12) g = "早上好，先看看今天最重要的 3 件事 ☀️";
+    else if (h < 14) g = "午安，学一会儿记得站起来走走 🌿";
+    else if (h < 19) g = "下午好，还剩几件没划掉？🍃";
+    else g = "晚上好，写完今日清单就可以放心休息啦 🌙";
+    $("greeting").textContent = g;
+  }
+
+  /* ============ 渲染：今日任务 ============ */
+  var editingIdx = -1;
+  function renderTasks() {
+    var ul = $("todayList"); ul.innerHTML = ""; editingIdx = -1;
+    if (!state.tasks.length) {
+      var e = document.createElement("li"); e.className = "empty-hint";
+      e.textContent = "今天还没有任务 —— 用下面输入框写第一件吧 🌱"; ul.appendChild(e); return;
+    }
+    state.tasks.forEach(function (t, idx) {
+      var li = document.createElement("li");
+      li.className = "task-row" + (t.done ? " done" : "");
+      var chk = document.createElement("button");
+      chk.type = "button"; chk.className = "chk";
+      chk.onclick = function () { state.tasks[idx].done = !state.tasks[idx].done; save(); renderTasks(); };
+      var tt = document.createElement("span"); tt.className = "tt"; tt.textContent = t.text;
+      var acts = document.createElement("div"); acts.className = "row-acts";
+      var ed = document.createElement("button");
+      ed.type = "button"; ed.className = "iact"; ed.textContent = "✎";
+      ed.onclick = function () { beginEdit(li, idx, t.text); };
+      var del = document.createElement("button");
+      del.type = "button"; del.className = "iact del"; del.textContent = "×";
+      del.onclick = function () { if (confirm("删除这条任务？\n" + t.text)) { state.tasks.splice(idx,1); save(); renderTasks(); } };
+      acts.appendChild(ed); acts.appendChild(del);
+      li.appendChild(chk); li.appendChild(tt); li.appendChild(acts);
+      ul.appendChild(li);
+    });
+  }
+  function beginEdit(li, idx, text) {
+    var tt = li.querySelector(".tt"), inp = document.createElement("input");
+    inp.type = "text"; inp.className = "edit-inp"; inp.maxLength = 80; inp.value = text;
+    var done = false;
+    function commit(saveIt) {
+      if (done) return; done = true;
+      var v = inp.value.trim();
+      if (saveIt && v && v !== text) { state.tasks[idx].text = v; save(); }
+      renderTasks();
+    }
+    inp.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") commit(true); else if (e.key === "Escape") commit(false);
+    });
+    inp.addEventListener("blur", function () { commit(true); });
+    tt.replaceWith(inp); inp.focus();
+  }
+  function addTask(text) {
+    text = (text || "").trim(); if (!text) return;
+    state.tasks.push({ text: text, done: false }); save(); renderTasks();
+  }
+
+  /* ============ 渲染：区域卡片 ============ */
+  function renderAreas() {
+    var wrap = $("areas"); wrap.innerHTML = "";
+    AREAS.forEach(function (a) {
+      var card = document.createElement("div");
+      card.className = "card"; card.dataset.accent = a.accent;
+      card.innerHTML = '<div class="emoji">' + a.emoji + '</div><h2>' + a.name + '</h2>' +
+                       '<p class="desc">' + a.desc + '</p><span class="folder">' + a.folder + '</span>';
+      var ul = document.createElement("ul");
+      a.links.forEach(function (l) {
+        var li = document.createElement("li");
+        var dot = document.createElement("span"); dot.className = "dot"; li.appendChild(dot);
+        if (l.f) {  // 本地笔记
+          var b = document.createElement("button");
+          b.className = "lnk"; b.type = "button"; b.textContent = l.t;
+          b.onclick = function () { openNote(l.f, l.t); };
+          li.appendChild(b);
+        } else if (l.u && l.u !== "#") {
+          var a2 = document.createElement("a");
+          a2.href = l.u; a2.target = "_blank"; a2.rel = "noreferrer"; a2.textContent = l.t;
+          li.appendChild(a2);
+        } else {
+          var sp = document.createElement("span");
+          sp.className = "todo-tag"; sp.textContent = l.t; li.appendChild(sp);
+        }
+        ul.appendChild(li);
+      });
+      card.appendChild(ul); wrap.appendChild(card);
+    });
+  }
+
+  /* ============ 渲染：链接收藏 ============ */
+  function renderLinks() {
+    var ul = $("linkList"); ul.innerHTML = "";
+    if (!state.links.length) {
+      ul.innerHTML = '<li style="color:#8a7f72">还没有收藏的链接 —— 用右下角 ＋ 登记</li>';
+      return;
+    }
+    state.links.forEach(function (l, i) {
+      var li = document.createElement("li");
+      var href = /^https?:\/\//i.test(l.url) ? l.url : ("http://" + l.url);
+      li.innerHTML = '<span style="font-size:12px;color:#8a7f72">' + esc((l.section||"").slice(0,2)) + '</span>' +
+                     '<a href="' + esc(href) + '" target="_blank" rel="noreferrer">' + esc(l.name) + '</a>' +
+                     '<button class="x" data-dellink="' + i + '">×</button>';
+      ul.appendChild(li);
+    });
+  }
+
+  /* ============ 本地笔记（替代电脑上的 .md） ============ */
+  var curFile = null;
+  function openNote(f, title) {
+    curFile = f;
+    $("noteTitle").textContent = "📝 " + title;
+    $("notePath").textContent = f.replace(/\//g, "\\") + "（存在本机）";
+    $("noteBody").value = state.files[f] || "";
+    $("noteModal").hidden = false;
+    setTimeout(function () { $("noteBody").focus(); }, 120);
+  }
+  function closeNote() { $("noteModal").hidden = true; curFile = null; }
+  function saveNote() {
+    if (!curFile) return;
+    state.files[curFile] = $("noteBody").value;
+    save(); closeNote();
+  }
+
+  /* ============ ＋ 面板 ============ */
+  function fillSelects() {
+    var s = $("noteTarget"); s.innerHTML = "";
+    NOTE_TARGETS.forEach(function (t) {
+      var o = document.createElement("option"); o.value = t.id; o.textContent = t.label; s.appendChild(o);
+    });
+    var s2 = $("linkSection"); s2.innerHTML = "";
+    LINK_SECTIONS.forEach(function (t) {
+      var o = document.createElement("option"); o.value = t; o.textContent = t; s2.appendChild(o);
+    });
+  }
+  function openSheet() { $("sheet").hidden = false; $("sheetBackdrop").hidden = false; }
+  function closeSheet() { $("sheet").hidden = true; $("sheetBackdrop").hidden = true; }
+
+  /* ============ 导出 / 导入 ============ */
+  function buildMarkdown() {
+    var o = [];
+    o.push("# 我的工作台 · 随身版导出 " + stamp());
+    o.push("");
+    o.push("## 🌟 今日任务");
+    if (!state.tasks.length) o.push("（空）");
+    state.tasks.forEach(function (t) { o.push("- [" + (t.done ? "x" : " ") + "] " + t.text); });
+    o.push("");
+    o.push("## ✍️ 随手记");
+    if (!state.notes.length) o.push("（空）");
+    state.notes.forEach(function (n) { o.push("- **" + n.ts + "** " + n.text); });
+    o.push("");
+    o.push("## 🔗 链接收藏");
+    if (!state.links.length) o.push("（空）");
+    state.links.forEach(function (l) { o.push("- [" + (l.section || "") + "] " + l.name + "：" + l.url); });
+    var keys = Object.keys(state.files);
+    if (keys.length) {
+      o.push("");
+      o.push("## 📝 区域笔记");
+      keys.forEach(function (k) {
+        o.push("");
+        o.push("### " + k);
+        o.push(state.files[k] || "（空）");
+      });
+    }
+    o.push("");
+    return o.join("\n");
+  }
+  function doExport() {
+    var md = buildMarkdown();
+    var name = "随身工作台-" + new Date().toISOString().slice(0, 10) + ".md";
+    try {
+      var blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+      $("backupMsg").className = "form-msg ok";
+      $("backupMsg").textContent = "✓ 已导出：" + name + "（去手机的下载里找）";
+    } catch (e) {
+      var w = window.open("", "_blank");
+      if (w) w.document.write("<pre style='white-space:pre-wrap;font-size:14px'>" + esc(md) + "</pre>");
+      else $("backupMsg").textContent = "导出失败，请长按页面复制内容";
+    }
+  }
+  function doImport(text) {
+    var added = { tasks: 0, notes: 0, links: 0, files: 0 }, section = "", cur = null;
+    text.split(/\r?\n/).forEach(function (line) {
+      var t = line.trim(), m;
+      if (/^###\s+/.test(t)) {                       // 区域笔记
+        cur = t.replace(/^###\s+/, "").trim();
+        if (!state.files[cur]) { state.files[cur] = ""; added.files++; }
+        return;
+      }
+      if (/^##\s+/.test(t)) {
+        cur = null;
+        section = t.indexOf("任务") >= 0 ? "tasks" : (t.indexOf("随手记") >= 0 ? "notes"
+                : (t.indexOf("链接") >= 0 ? "links" : (t.indexOf("区域笔记") >= 0 ? "files" : "")));
+        return;
+      }
+      if (cur && section === "files") { state.files[cur] += (state.files[cur] ? "\n" : "") + line; return; }
+      if (section === "tasks" && (m = t.match(/^-\s*\[([ xX])\]\s*(.+)$/))) {
+        state.tasks.push({ text: m[2], done: m[1].toLowerCase() === "x" }); added.tasks++;
+      } else if (section === "notes" && (m = t.match(/^-\s*\*\*(.+?)\*\*\s*(.+)$/))) {
+        state.notes.unshift({ ts: m[1], text: m[2] }); added.notes++;
+      } else if (section === "links" && (m = t.match(/^-\s*(?:\[(.+?)\]\s*)?(.+?)[：:]\s*(https?:\S+)\s*$/))) {
+        state.links.push({ section: m[1] || "", name: m[2], url: m[3], ts: stamp() }); added.links++;
+      }
+    });
+    save(); renderTasks(); renderLinks();
+    $("backupMsg").className = "form-msg ok";
+    $("backupMsg").textContent = "✓ 导入完成：任务 " + added.tasks + "、随手记 " + added.notes +
+                                 "、链接 " + added.links + "、区域笔记 " + added.files;
+  }
+
+  /* ============ 事件 ============ */
+  function bind() {
+    $("taskAddForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var inp = $("taskInput"); addTask(inp.value); inp.value = ""; inp.focus();
+    });
+    $("fab").onclick = function () { $("sheet").hidden ? openSheet() : closeSheet(); };
+    $("sheetBackdrop").onclick = closeSheet;
+    Array.prototype.forEach.call(document.querySelectorAll(".stab"), function (b) {
+      b.onclick = function () {
+        Array.prototype.forEach.call(document.querySelectorAll(".stab"), function (x) { x.classList.remove("active"); });
+        b.classList.add("active");
+        var tab = b.dataset.tab;
+        $("pane-note").hidden = tab !== "note";
+        $("pane-link").hidden = tab !== "link";
+        $("pane-backup").hidden = tab !== "backup";
+      };
+    });
+    $("noteBtn").onclick = function () {
+      var t = $("noteText").value.trim(), msg = $("noteMsg");
+      msg.className = "form-msg"; msg.textContent = "";
+      if (!t) { msg.className = "form-msg err"; msg.textContent = "写点内容再追加吧"; return; }
+      var target = NOTE_TARGETS.filter(function (x) { return x.id === $("noteTarget").value; })[0];
+      state.notes.unshift({ ts: stamp(), text: t, to: target ? target.label : "" });
+      var path = target ? target.path : null;
+      if (path) state.files[path] = (state.files[path] || "") + (state.files[path] ? "\n" : "") + "- **" + stamp() + "** " + t;
+      save(); renderTasks(); renderLinks();
+      $("noteText").value = "";
+      msg.className = "form-msg ok"; msg.textContent = "✓ 已记到「" + (target ? target.label : "随手记") + "」（存本机）";
+    };
+    $("linkBtn").onclick = function () {
+      var n = $("linkName").value.trim(), u = $("linkUrl").value.trim(), msg = $("linkMsg");
+      msg.className = "form-msg"; msg.textContent = "";
+      if (!n || !u) { msg.className = "form-msg err"; msg.textContent = "名称和网址都要填"; return; }
+      state.links.unshift({ section: $("linkSection").value, name: n, url: u, ts: stamp() });
+      save(); renderLinks();
+      $("linkName").value = ""; $("linkUrl").value = "";
+      msg.className = "form-msg ok"; msg.textContent = "✓ 已登记到「" + $("linkSection").value + "」";
+    };
+    $("exportBtn").onclick = doExport;
+    $("importBtn").onclick = function () { $("importFile").click(); };
+    $("importFile").addEventListener("change", function (e) {
+      var f = e.target.files && e.target.files[0]; if (!f) return;
+      var fr = new FileReader();
+      fr.onload = function () { doImport(String(fr.result || "")); };
+      fr.readAsText(f, "utf-8"); e.target.value = "";
+    });
+    $("noteSave").onclick = saveNote;
+    $("noteClose").onclick = closeNote;
+    $("noteModal").addEventListener("click", function (e) { if (e.target === $("noteModal")) closeNote(); });
+    document.body.addEventListener("click", function (e) {
+      if (e.target.dataset && e.target.dataset.dellink !== undefined) {
+        var i = +e.target.dataset.dellink;
+        if (confirm("删除这个链接？")) { state.links.splice(i, 1); save(); renderLinks(); }
+      }
+    });
+  }
+
+  function init() {
+    renderClock(); fillSelects(); load(); bind();
+    renderTasks(); renderAreas(); renderLinks();
+    $("buildTag").textContent = BUILD + "（与电脑版同一套界面）";
+  }
+  init();
+})();
+</script>
+<script>
+  // 注册 Service Worker：断网时也能打开（网络优先策略，不会把你钉在旧版本上）
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  }
+</script>
+</body>
+</html>
