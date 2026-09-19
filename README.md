@@ -28,6 +28,19 @@
 3. GitHub Pages 会自动重建，约 1 分钟后手机刷新即可看到
    - 如果改了前端想立刻看到效果：手机清一次缓存，或等 SW 自动更新（网络优先，通常一两次刷新就换新）
 
+### ⚠️ 这台电脑的网络对 github.com 时通时断
+
+`git push` 可能会失败（`Failed to connect to github.com:443` / `Empty reply from server`）。
+这时改用 API 通道（只走 api.github.com，比较稳）：
+
+```
+cd d:\workplace\我的工作台
+python tools\gh_upload.py "d:\workplace\personal-workplace" shijiu2890/personal-workplace main "改了什么"
+```
+
+它会把文件夹里的文件逐个用 GitHub Contents API 上传（已存在的文件会自动带上 sha 更新）。
+
+
 ## 文件说明
 
 | 文件 | 作用 |
